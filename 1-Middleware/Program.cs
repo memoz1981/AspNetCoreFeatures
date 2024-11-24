@@ -20,7 +20,8 @@ public class Program
         else
             app.UseDeveloperExceptionPage();
 
-        //1c - will return error page when status code is 4xx or 5xx (for example if a resource is not found)
+        // 1c - will return error page when status code is 4xx or 5xx
+        // (for example if a resource is not found)
         app.UseStatusCodePagesWithReExecute("home/error"); 
 
         // 2 - welcome page pipeline - will short circuit any middleware after it
@@ -47,9 +48,10 @@ public class Program
 
         // 5 - middleware to map to endpoints
         // this will ensure that endpoints are mapped. uses EndpointRoutingMiddleware. 
+        // will populate endpoint of HttpContext
         app.UseRouting();
 
-        // 6 - Custom middleware to log all mapped routes - this will 
+        // 6 - Custom middleware to log all mapped routes - will run on each request
         app.Use(async (context, next) =>
         {
             LogAllRoutes(app, logger);
@@ -64,8 +66,6 @@ public class Program
         // 7b - middleware to provide re-direction with route. Re-direction is done by browser not the app...
         app.MapGroup("test")
             .MapGet("redirect", () => Results.Redirect(url: "/test/get"));
-
-        app.UseEndpoints(builder => { }); 
 
         // 7c - middleware to provide re-direction with name. Re-direction is done by browser not the app...
         // the only difference from above is this is by name, above is by route... 
@@ -84,6 +84,7 @@ public class Program
             pattern: "{controller=Home}/{action=Index}/{id?}");
 
         // 7g - this is not recommended, but an alternative to combine all routes. 
+        // rather an old setup
 #pragma warning disable ASP0014 // Suggest using top level route registrations
         app.UseEndpoints(routes =>
         {
