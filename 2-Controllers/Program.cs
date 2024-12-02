@@ -26,9 +26,14 @@ namespace _2_Controllers
 
             app.UseAuthorization();
 
+            app.MapControllers();
+
+            app.MapGroup("Test")
+                .MapGet("GetData", () => "Returning data...");
+
             app.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+            name: "default",
+            pattern: "{controller=Home}/{action=Index}/{id?}");
 
             app.Run();
         }
