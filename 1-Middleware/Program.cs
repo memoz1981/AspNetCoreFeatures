@@ -129,7 +129,7 @@ public class Program
     /// </summary>
     /// <param name="app"></param>
     /// <param name="logger"></param>
-    static async void LogAllRoutes(WebApplication app, ILogger logger, HttpContext context)
+    static void LogAllRoutes(WebApplication app, ILogger logger, HttpContext context)
     {
         // below returns DefaultHttpContext (HttpContext itself is an abstract class) 
         // HttpContext is being exposed using HttpContextDebugView (DebuggerTypeProxy)
@@ -137,7 +137,7 @@ public class Program
 
         var ep = context.GetEndpoint();
 
-        //below code would call the controller action if mapped.  
+        //below code would call the controller action method if mapped.  
         //var _ = ep.RequestDelegate.Invoke(context);
         
         // Access the EndpointDataSource from the DI container
