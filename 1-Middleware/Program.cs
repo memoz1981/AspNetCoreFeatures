@@ -83,10 +83,26 @@ public class Program
         // 7e - middleware to map controllers based on attribute routing - this provider flexibility for custom routes
         app.MapControllers();
 
+        //below route will be matches if orders/get action is called with int id, otherwise 7f will be used, matching default value of 0 (zero)
+        app.MapControllerRoute(
+            name: "orders",
+            pattern: "{Orders}/{Get}/{id:int}");
+
         // 7f - this will enable conventional routing -> actions will be mapped by controller/action name - limited functionality
         app.MapControllerRoute(
             name: "default",
-            pattern: "{controller=Home}/{action=Index}/{id?}");
+            pattern: "{controller=home}/{action=index}/{id?}");
+
+        // below is equivalent to 7f - using anonymous types for defaults... 
+        // possible to specify the constraint in the same manner. 
+        app.MapControllerRoute(
+            name: "default",
+            pattern: "{controller}/{action}/{id?}",
+            defaults: new 
+            { 
+                controller = "home",
+                action = "index"
+            });
 
         // 7g - adding second conventional routing pattern - moving this before 7f will change the behaviour
         // for scenario route person/data/show is called. in current case 7f will be invoked
