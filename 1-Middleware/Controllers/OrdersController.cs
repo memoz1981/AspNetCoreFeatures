@@ -8,5 +8,10 @@ namespace _1_Middleware.Controllers
         {
             return Ok($"Received id is {id}"); 
         }
+
+        public IActionResult GetByName(string name)
+        {
+            return Ok($"Received name is {name}");
+        }
     }
 }

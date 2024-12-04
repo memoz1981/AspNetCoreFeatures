@@ -33,6 +33,9 @@ public class Program
         var logger = app.Logger;
         app.Use(async (context, next) =>
         {
+            logger.Log(LogLevel.Information,
+                   $"\n\n\n------------------------------------REQUEST STARTS-------------------------------------");
+
             if (context.Request.Path.HasValue)
                 logger.Log(LogLevel.Information, $"Request path: {context.Request.Path.Value}");
 
@@ -85,8 +88,12 @@ public class Program
 
         //below route will be matches if orders/get action is called with int id, otherwise 7f will be used, matching default value of 0 (zero)
         app.MapControllerRoute(
-            name: "orders",
+            name: "orders_id",
             pattern: "{Orders}/{Get}/{id:int}");
+
+        app.MapControllerRoute(
+            name: "orders_name",
+            pattern: "{Orders}/{GetByName}/{name}");
 
         // 7f - this will enable conventional routing -> actions will be mapped by controller/action name - limited functionality
         app.MapControllerRoute(
@@ -160,6 +167,10 @@ public class Program
         var endpointDataSources = app.Services.GetRequiredService<IEnumerable<EndpointDataSource>>();
 
         logger.Log(LogLevel.Information, "Registered Routes:");
+
+        var routeDictionary = endpointDataSources.SelectMany(source =>
+            source.Endpoints.SelectMany(endp => (endp.DisplayName, (endp as RouteEndpoint).RoutePattern)));
+
         foreach (var source in endpointDataSources)
         {
             foreach (var endpoint in source.Endpoints)
