@@ -36,6 +36,11 @@ public class Program
             if (context.Request.Path.HasValue)
                 logger.Log(LogLevel.Information, $"Request path: {context.Request.Path.Value}");
 
+            var endpoint = context.GetEndpoint(); 
+
+            if(endpoint is not null)
+                logger.Log(LogLevel.Information, $"Request endpoint: {endpoint.DisplayName}");
+
             await next(context);
 
             logger.Log(LogLevel.Information,
@@ -54,7 +59,7 @@ public class Program
         // 6 - Custom middleware to log all mapped routes - will run on each request
         app.Use(async (context, next) =>
         {
-            LogAllRoutes(app, logger);
+            LogAllRoutes(app, logger, context);
             await next(context);
         });
 
@@ -83,7 +88,14 @@ public class Program
             name: "default",
             pattern: "{controller=Home}/{action=Index}/{id?}");
 
-        // 7g - this is not recommended, but an alternative to combine all routes. 
+        // 7g - adding second conventional routing pattern - moving this before 7f will change the behaviour
+        // for scenario route person/data/show is called. in current case 7f will be invoked
+        // if moved, person/data will be invoked - so the order of conventional routing is important... 
+        app.MapControllerRoute(
+            name: "person",
+            pattern: "{controller=Person}/{name}/{action=Show}/");
+
+        // 7h - this is not recommended, but an alternative to combine all routes. 
         // rather an old setup
 #pragma warning disable ASP0014 // Suggest using top level route registrations
         app.UseEndpoints(routes =>
@@ -117,8 +129,17 @@ public class Program
     /// </summary>
     /// <param name="app"></param>
     /// <param name="logger"></param>
-    static void LogAllRoutes(WebApplication app, ILogger logger)
+    static async void LogAllRoutes(WebApplication app, ILogger logger, HttpContext context)
     {
+        // below returns DefaultHttpContext (HttpContext itself is an abstract class) 
+        // HttpContext is being exposed using HttpContextDebugView (DebuggerTypeProxy)
+        var type = context.GetType();
+
+        var ep = context.GetEndpoint();
+
+        //below code would call the controller action if mapped.  
+        //var _ = ep.RequestDelegate.Invoke(context);
+        
         // Access the EndpointDataSource from the DI container
         var endpointDataSources = app.Services.GetRequiredService<IEnumerable<EndpointDataSource>>();
 
