@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Routing;
+using System.Text;
+
 namespace _1_Middleware; 
 
 public class Program
@@ -160,6 +163,8 @@ public class Program
 
         var ep = context.GetEndpoint();
 
+        var route = (ep as RouteEndpoint).RoutePattern.RawText; 
+
         //below code would call the controller action method if mapped.  
         //var _ = ep.RequestDelegate.Invoke(context);
         
@@ -167,19 +172,33 @@ public class Program
         var endpointDataSources = app.Services.GetRequiredService<IEnumerable<EndpointDataSource>>();
 
         logger.Log(LogLevel.Information, "Registered Routes:");
+        var builder = new StringBuilder(); 
 
-        var routeDictionary = endpointDataSources.SelectMany(source =>
-            source.Endpoints.SelectMany(endp => (endp.DisplayName, (endp as RouteEndpoint).RoutePattern)));
-
-        foreach (var source in endpointDataSources)
-        {
-            foreach (var endpoint in source.Endpoints)
+        var routeList = endpointDataSources.SelectMany(source =>
+            source.Endpoints.Select(endp =>
             {
-                if (endpoint is RouteEndpoint routeEndpoint)
+                var pt = new
                 {
-                    logger.Log(LogLevel.Information, routeEndpoint.DisplayName);
-                }
-            }
-        }
+                    Name = endp.DisplayName,
+                    RoutePattern = (endp as RouteEndpoint).RoutePattern.RawText
+                };
+
+                if(pt.RoutePattern == route)
+                    builder.AppendLine($"{pt.Name} - {pt.RoutePattern} ***");
+                else
+                    builder.AppendLine($"{pt.Name} - {pt.RoutePattern}");
+
+                return pt;
+            })).ToList();
+
+        File.WriteAllText("hello.txt", builder.ToString()); 
+
+        //logger.LogInformation(builder.ToString()); 
+
+        //var routeDictionary = routeList.DistinctBy(l => l.RoutePattern)
+        //    .ToDictionary(pt => pt.RoutePattern, pt => pt.Name);
+
+        //var returnedEndpoint = routeDictionary[(ep as RouteEndpoint).RoutePattern.RawText];
+        //logger.Log(LogLevel.Information, returnedEndpoint);
     }
 }
