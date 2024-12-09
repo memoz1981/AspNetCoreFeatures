@@ -2,5 +2,5 @@
 
 namespace MiddlewareTests;
 
-public class AspWebApplicationFactory
-    : WebApplicationFactory<Middleware.Program> {}
+public class AspWebApplicationFactory<TProgram>
+    : WebApplicationFactory<TProgram> where TProgram : class {}
